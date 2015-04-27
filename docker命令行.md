@@ -3,24 +3,85 @@
 #docker client常用命令介绍
 ##run
   使用指定命令创建新的容器，并运行相应命令。docker最重要的命令之一，其语法为：  
-  >docker run [options] image [command] [command-params]  
+  >docker run [OPTIONS] image [command] [command-params]  
   
   
 ##create
   使用指定命令创建新的容器，但不运行命令。其语法与run命令基本一致。
-  >docker create [options] image [command] [command-params]  
+  >docker create [OPTIONS] image [command] [command-params]  
 ##start
-  启动容器。
-  >docker start [container]  
-  使用时，允许
+  启动已经关闭的容器。
+  >docker start [OPTIONS] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]  
+  
+  可用选项为：
+  >-a, --attach=false  
+  -i, --interactive=false  
+  
+  -a选项，是否关联容器的标准输出和标准错误输出（STDIN、STDERR）并转发信号给容器。
+  -i选项，是否关联容器的标准输出（STDIN）到客户端。
+   
 ##stop
+  关闭运行中的容器。其语法为：
+  >docker stop [OPTIONS] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]   
+  
+   可用选项为：
+  >-t, --time=10  
+  
+  stop容器时，如果容器在-t选项指定的时间内没有成功关闭，则通过kill杀死容器。
+
 ##restart
+  重启运行中的容器。其语法为：
+  >docker restart [OPTIONS] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]  
+  
+  可用选项为：
+  >-t, --time=10  
+  
+  restart命令尝试stop容器，如果容器在-t选项指定的时间内没有成功关闭，通过kill杀死容器，然后再启动容器。
+##pause
+  通过cgroup freezer挂起容器中的所有进程，这些进行会收到*SIGSTOP*信号。其语法为：
+  >docker pause CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]  
+  
+##unpause
+  通过cgroup freezer取消挂起容器中的所有进程。其语法为：
+  >docker pause CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]  
+  
 ##kill
-  发送SIGKILL信号给容器，来终止容器进程。其语法为：  
-  >docker kill [options] container  
+  发送SIGKILL信号给容器中的主进程，来终止容器进程。其语法为：  
+  >docker kill [options] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]    
+    
   可用的选项为  
-  >
+  >-s, --signal="KILL"  
+  
+  -s选项指定发送给被杀死的容器进程的信号，默认为KILL信号。
+
+##stats
+  输出容器内部的资源使用情况统计，类似与top命令，并不断输出。其语法为：
+  >docker stats [OPTIONS] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]  
+  
+  **只对运行状态的容器有效**。
 ##ps
+  列出容器。其语法为：
+  >docker ps [OPTIONS]  
+  
+  可用选项为：
+  >-a, --all=false  
+  --before=""       
+  -f, --filter=[]  
+  -l, --latest=false  
+  -n=-1               
+  --no-trunc=false  
+  -q, --quiet=false  
+  -s, --size=false  
+  --since=""  
+  
+  -a选项，指定是否列出所有容器，默认只列出运行中的容器。
+  --before、--since选项，指定列出某个ID对应容器创建前和创建后的所有容器。
+  --no-trunc选项，指定是否对容器的ID进行截断处理。
+
+##rename
+  修改容器名称。其语法为：
+  >docker rename OLD_NAME NEW_NAME  
+  
 ##images
 ##inspect
 ##rm
@@ -33,14 +94,49 @@
 ##attach
 ##diff
 ##login
-  登录到指定的registry服务上，按步骤输入用户名、密码等信息即可。
+  登录到指定的registry服务上，按步骤输入用户名、密码等信息即可。如果没有指定，则访问docker官方registry服务器https://index.docker.io/v1/。
+##logout
+  从指定的registry服务上登出，不指定时，则访问docker官方registry服务器https://index.docker.io/v1/。
 ##pull
   从仓库中拉取或者更新指定的镜像。
 ##push
+  
 ##version
-  显示docker版本信息，主要包括。其语法为：  
+  显示docker版本信息，主要包括docker client、docker daemon、go语言、git版本等信息。其语法为：  
   >docker version  
+  
+  输出类似如下内容
+>root@ubuntu:~# docker version  
+Client version: 1.6.0  
+Client API version: 1.18  
+Go version (client): go1.4.2  
+Git commit (client): 4749651  
+OS/Arch (client): linux/amd64  
+Server version: 1.6.0  
+Server API version: 1.18    
+Go version (server): go1.4.2  
+Git commit (server): 4749651  
+OS/Arch (server): linux/amd64  
+
   
 ##info
   显示docker守护进程的详细信息，主要包括存储后端驱动类型、本地镜像和容器个数、容器驱动类型等信息。其语法为：  
   >docker info  
+  
+  输出类似如下内容：
+  >root@ubuntu:~# docker info  
+  Containers: 3  
+  Images: 57  
+  Storage Driver: aufs  
+  Root Dir: /var/lib/docker/aufs  
+  Backing Filesystem: extfs  
+  Dirs: 63  
+  Dirperm1 Supported: false  
+  Execution Driver: native-0.2  
+  Kernel Version: 3.13.0-46-generic  
+  Operating System: Ubuntu 14.04.2 LTS  
+  CPUs: 2  
+  Total Memory: 3.861 GiB  
+  Name: ubuntu  
+  ID: ZIVL:QRFH:4PSA:AKCW:TKLD:PF7D:N4QD:YQOF:YEFX:2RFH:56UU:C7MW  
+

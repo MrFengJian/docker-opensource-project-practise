@@ -98,7 +98,16 @@
 ##logout
   从指定的registry服务上登出，不指定时，则访问docker官方registry服务器https://index.docker.io/v1/。
 ##pull
-  从仓库中拉取或者更新指定的镜像。
+  从仓库中拉取或者更新指定的镜像。其语法为：
+  >docker pull [OPTIONS] NAME[:TAG]  
+  
+  可用选项为：
+  >-a, --all-tags=false   
+  
+  -a选项指定是或否下载指定名称仓库中的所有tag的镜像。
+  默认上传到docker hub官方仓库(registry.hub.docker.com)中，如果需要从其他仓库中下载，则在NAME前面增加仓库位置。例如：
+  >docker pull 192.168.1.100:5000/centos
+  
 ##push
   
 ##version

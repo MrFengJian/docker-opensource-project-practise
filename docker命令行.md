@@ -17,7 +17,7 @@
   >-a, --attach=false  
   -i, --interactive=false  
   
-  -a选项，是否关联容器的标准输出和标准错误输出（STDIN、STDERR）并转发信号给容器。
+  -a选项，是否关联容器的标准输出和标准错误输出（STDIN、STDERR）并转发信号给容器。  
   -i选项，是否关联容器的标准输出（STDIN）到客户端。
    
 ##stop
@@ -52,8 +52,22 @@
   可用的选项为  
   >-s, --signal="KILL"  
   
-  -s选项指定发送给被杀死的容器进程的信号，默认为*SIGKILL*信号。
+  -s选项指定发送给被杀死的容器进程的信号，默认为*SIGKILL*信号。 
 
+##rm
+  删除若干个容器。其语法为：
+  >docker rm [options] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]    
+  
+  允许对运行状态的容器进行删除，可用选项为：
+  >-f, --force=false  
+  -l, --link=false  
+  -v, --volumes=false  
+
+  -f选项使用*SIGKILL*信号强行杀死容器进程，删除运行中的容器。  
+  -l选项，用于删掉指定的容器连接（***目前没有实现功能***）。  
+  -v选项，用于删除容器使用的卷（***目前没有实现功能***）。  
+  
+  
 ##stats
   输出容器内部的资源使用情况统计，类似与top命令，并不断输出。其语法为：
   >docker stats [OPTIONS] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]  
@@ -74,9 +88,12 @@
   -s, --size=false  
   --since=""  
   
-  -a选项，指定是否列出所有容器，默认只列出运行中的容器。
-  --before、--since选项，指定列出某个ID对应容器创建前和创建后的所有容器。
-  --no-trunc选项，指定是否对容器的ID进行截断处理。
+  -a选项，指定是否列出所有容器，默认只列出运行中的容器。  
+  --before、--since选项，指定列出某个ID对应容器创建前和创建后的所有容器。  
+  --no-trunc选项，指定是对容器的ID进行截断处理。容器ID为64位字符串，默认截断为12位。  
+  -q选项，指定只显示容器ID，而不显示其他容器信息。  
+  -l选项，显示**最近创建**的容器，包括非运行状态的容器。  
+  -n选项，显示**最近创建的n个**容器，-1表示不使用这个选项。
 
 ##exec
   在执行中的容器中运行命令，其语法为：
@@ -90,10 +107,13 @@
   >--no-stdin=false  
   --sig-proxy=true  
   
-  --no-stdin选项指定attach会话是是否关联标准输入。
-  --sig-proxy表示是否将所有进程信号转发给容器的主进程(**即进程号为1的进程**)。
-  如果要退出attach会话，有两种方式：
-  + ctrl p后按ctrl q，这种方式只退出会话，容器依然保持运行状态。  
+  --no-stdin选项指定attach会话是是否关联标准输入。  
+  --sig-proxy表示是否将所有进程信号转发给容器的主进程(**即进程号为1的进程**)。  
+ 
+  如果要退出attach会话，有两种方式：  
+
+  + ctrl p后按ctrl q，这种方式只退出会话，容器依然保持运行状态。   
+  
   + ctrl c，这种方式将通过发送*SIGKILL*信号给容器的方式杀死容器。  
   
   >**PS**:如果容器使用它-t选项（启用tty模拟终端）方式运行，则使用attach命令时，禁止将attach命令的输出进行重定向，以避免安全问题。  
@@ -104,15 +124,32 @@
   >docker rename OLD_NAME NEW_NAME  
   
 ##images
+  查询docker主机本身已经下载的镜像信息。其语法为：
+  >docker images [OPTIONS] [REPOSITORY]  
+  
+  可用选项为：
+  >-a, --all=false
+  -f, --filter=[]      Provide filter values (i.e., 'dangling=true')  
+  --help=false         Print usage  
+  --no-trunc=false
+  -q, --quiet=false    Only show numeric IDs  
+
+  -a选项，由于docker的镜像分层按照树状进行组织，-a选项指定时，显示中间层的镜像，否则只显示叶子节点（即最终输出的镜像）。  
+  --no-trunc选项，对镜像的ID不进行截断处理。原始镜像ID长度为64位，为显示方便，默认截断为12位。  
+  -q选项，指定时，只显示镜像的ID，而不显示镜像名称、仓库、标签等详细信息。  
+  -f选项，使用过滤器来对本地镜像进行过滤。目前可用的过滤器只有两个：
+  >+ dangling：值为true或false，表示镜像是否是dangling的（**TBD，官方没有说明**）    
+  >+ label：使用镜像标签进行过滤，方式为label=<key>或label=<key>=<value>。  
+  
+
 ##inspect
-##rm
+  
 ##rmi
 ##cp
 ##export
 ##import
 ##diff
 
-##diff
 ##login
   登录到指定的registry服务上，按步骤输入用户名、密码等信息即可。如果没有指定，则访问docker官方registry服务器https并://index.docker.io/v1/。
 ##logout

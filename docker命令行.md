@@ -9,6 +9,7 @@
 ##create
   使用指定命令创建新的容器，但不运行命令。其语法与run命令基本一致。
   >docker create [OPTIONS] image [command] [command-params]  
+
 ##start
   启动已经关闭的容器。
   >docker start [OPTIONS] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]  
@@ -64,8 +65,8 @@
   -v, --volumes=false  
 
   -f选项使用*SIGKILL*信号强行杀死容器进程，删除运行中的容器。  
-  -l选项，用于删掉指定的容器连接（***目前没有实现功能***）。  
-  -v选项，用于删除容器使用的卷（***目前没有实现功能***）。  
+  -l选项，用于删掉指定的容器连接（***TBD***）。  
+  -v选项，用于删除容器使用的卷（***TBD***）。  
   
   
 ##stats
@@ -145,6 +146,20 @@
 ##inspect
   
 ##rmi
+  删除若干个本地的已有镜像。其语法为:
+  >docker rmi [OPTIONS] IMAGE [IMAGE...]  
+
+  可用选项为：
+  >-f, --force=false  
+  --no-prune=false     Do not delete untagged parents    
+
+  删除镜像时，可以通过镜像ID、镜像名称、镜像的标签等多种方式。但**需要注意**，使用镜像ID删除镜像时，如果镜像有多个tag标签，则需要首先把这些标签都删除掉，才能继续删除，否则报出类似下面的错误：
+  >Error: Conflict, cannot delete image fd484f19954f because it is tagged in multiple repositories, use -f to force
+2013/12/11 05:47:16 Error: failed to remove one or more images  
+   
+  -f选项指定强行删除镜像，即使镜像包括多个标签。
+  --no-prune选项指定为true时，则对没有标签的父镜像也同时删除。
+
 ##cp
 ##export
 ##import

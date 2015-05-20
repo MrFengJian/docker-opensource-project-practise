@@ -12,7 +12,7 @@
 
 ##start
   启动已经关闭的容器。
-  >docker start [OPTIONS] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]  
+  >docker start [OPTIONS] CONTAINER [CONTAINER ...]  
   
   可用选项为：
   >-a, --attach=false  
@@ -23,7 +23,7 @@
    
 ##stop
   关闭运行中的容器。其语法为：
-  >docker stop [OPTIONS] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]   
+  >docker stop [OPTIONS] CONTAINER [CONTAINER ...]   
   
    可用选项为：
   >-t, --time=10  
@@ -32,7 +32,7 @@
 
 ##restart
   重启运行中的容器。其语法为：
-  >docker restart [OPTIONS] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]  
+  >docker restart [OPTIONS] CONTAINER [CONTAINER ...]  
   
   可用选项为：
   >-t, --time=10  
@@ -40,15 +40,15 @@
   restart命令尝试stop容器，如果容器在-t选项指定的时间内没有成功关闭，通过kill杀死容器，然后再启动容器。
 ##pause
   通过cgroup freezer挂起容器中的所有进程，这些进行会收到*SIGSTOP*信号。其语法为：
-  >docker pause CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]  
+  >docker pause CONTAINER [CONTAINER ...]  
   
 ##unpause
   通过cgroup freezer取消挂起容器中的所有进程。其语法为：
-  >docker pause CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]  
+  >docker pause CONTAINER [CONTAINER ...]  
   
 ##kill
   发送*SIGKILL*信号给容器中的主进程，来终止容器进程。其语法为：  
-  >docker kill [options] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]    
+  >docker kill [options] CONTAINER [CONTAINER ...]    
     
   可用的选项为  
   >-s, --signal="KILL"  
@@ -57,7 +57,7 @@
 
 ##rm
   删除若干个容器。其语法为：
-  >docker rm [options] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]    
+  >docker rm [options] CONTAINER [CONTAINER ...]    
   
   允许对运行状态的容器进行删除，可用选项为：
   >-f, --force=false  
@@ -71,7 +71,7 @@
   
 ##stats
   输出容器内部的资源使用情况统计，类似与top命令，并不断输出。其语法为：
-  >docker stats [OPTIONS] CONTAINER_ID/CONTAINER_NAME [CONTAINER_ID/CONTAINER_NAME ...]  
+  >docker stats [OPTIONS] CONTAINER [CONTAINER ...]  
   
   **只对运行状态的容器有效**。
 ##ps
@@ -102,7 +102,7 @@
   
 ##attach
   关联进入容器的会话，与容器中进程进行交互。其语法为：
-  >docker attach [OPTIONS] CONTAINER_ID/CONTAINER_NAME  
+  >docker attach [OPTIONS] CONTAINER  
   
   使用此命令时，要求容器是运行中的，并打开了交互会话。可用选项为：
   >--no-stdin=false  
@@ -123,7 +123,24 @@
 ##rename
   修改容器名称。其语法为：
   >docker rename OLD_NAME NEW_NAME  
+
+##diff
+  比较当前容器相对与容器使用的镜像的文件系统变化。其语法为：
+  >docker diff CONTAINER  
   
+  列出的修改项为以下三种：
+  >+ A：添加文件  
+  >+ D：删除文件  
+  >+ C：文件内容修改  
+  
+  
+  
+##cp  
+  复制容器中的指定文件到宿主机上。其语法为：
+  >docker cp CONTAINER:CONTAINER_PATH HOSTPATH  
+  
+  **PS**：此命令对关闭的容器也可以生效。
+
 ##images
   查询docker主机本身已经下载的镜像信息。其语法为：
   >docker images [OPTIONS] [REPOSITORY]  
@@ -144,6 +161,21 @@
   
 
 ##inspect
+  获取镜像或容器的配置信息。其语法为：
+  >docker inspect [OPTIONS] IMAGE/CONTAINER [IMAGE/CONTAINER...]  
+  
+  可用选项为：
+  > -f, --format=""  
+  
+  -f选项指定显示容器信息的模板，此模板用于过滤获取输出信息的某些特定字段。关于其用法，参考[text/template](http://golang.org/pkg/text/template/)。  
+
+  默认情况下，输出信息显示为JSON格式的字符串。如果通过了-f选项指定了模板，则使用相应模板过滤输出结果。
+  例如：
+  查询容器的IP地址（*只有运行的容器有IP地址*）:
+  >root@ubuntu:~# docker inspect --format='{{.NetworkSettings.IPAddress}}' simulator  
+172.17.0.2
+ 
+  更多的示例，可以参考[docker官方命令行文档](https://docs.docker.com/reference/commandline/cli/#inspect)。
   
 ##rmi
   删除若干个本地的已有镜像。其语法为:
@@ -160,10 +192,21 @@
   -f选项指定强行删除镜像，即使镜像包括多个标签。
   --no-prune选项指定为true时，则对没有标签的父镜像也同时删除。
 
-##cp
+
 ##export
 ##import
-##diff
+  从指定的压缩包（本地文件或http指定）中导入镜像。本质上是先创建了一个空镜像，然后把压缩包中的内容导入进去。同时可以为产生的镜像打上标签。其语法为：
+  >docker import URL|- [REPOSITORY[:TAG]]  
+  
+  支持的压缩包格式包括.tar, .tar.gz, .tgz, .bzip, .tar.xz, .txz。如果使用URL，则http地址必须指向单个压缩包。也可以使用-来从标准输入`STDIN`中读取压缩包数据。
+  可用选项为：
+  > -c, --change=[]  
+  
+  -c选项指定在导入镜像时，需要额外指定的`Dockerfile`指令，支持的指令为：
+  >CMD, ENTRYPOINT, ENV, EXPOSE, ONBUILD, USER, VOLUME, WORKDIR  
+  
+  import和export应当成对使用，类似于对容器操作的save和load，但又有所区别，可以参考
+  [TBD]()。
 
 ##login
   登录到指定的registry服务上，按步骤输入用户名、密码等信息即可。如果没有指定，则访问docker官方registry服务器https并://index.docker.io/v1/。

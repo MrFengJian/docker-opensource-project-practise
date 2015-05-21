@@ -194,8 +194,17 @@
 
 
 ##export
+  将容器的文件系统打包成压缩包。其语法为：
+  >docker export [OPTIONS] CONTAINER  
+  
+  可用选项为：
+  >-o, --output=""  
+  
+  默认情况下，export命令将压缩包内容输出到标准输出`STDOUT`，可以通过上面的`-o`选项将其重定向到指定的文件中。  
+  实质上相当于将容器的当前文件系统做了快照。
+
 ##import
-  从指定的压缩包（本地文件或http指定）中导入镜像。本质上是先创建了一个空镜像，然后把压缩包中的内容导入进去。同时可以为产生的镜像打上标签。其语法为：
+  从指定的压缩包（本地文件或http指定）中导入文件系统，产生一个镜像。本质上是先创建了一个空镜像，然后把压缩包中的内容导入进去。同时可以为产生的镜像打上标签。其语法为：
   >docker import URL|- [REPOSITORY[:TAG]]  
   
   支持的压缩包格式包括.tar, .tar.gz, .tgz, .bzip, .tar.xz, .txz。如果使用URL，则http地址必须指向单个压缩包。也可以使用-来从标准输入`STDIN`中读取压缩包数据。
@@ -206,7 +215,7 @@
   >CMD, ENTRYPOINT, ENV, EXPOSE, ONBUILD, USER, VOLUME, WORKDIR  
   
   import和export应当成对使用，类似于对容器操作的save和load，但又有所区别，可以参考
-  [TBD]()。
+  [export、import和save、load机制的区别](./export、import和save、load机制的区别.md)。
 
 ##login
   登录到指定的registry服务上，按步骤输入用户名、密码等信息即可。如果没有指定，则访问docker官方registry服务器https并://index.docker.io/v1/。
